@@ -1,4 +1,4 @@
 # Tasks
 Users signup to create and edit tasks
-/n run npm install
-/n run npm start to start app
+ #run npm install
+ #run npm start to start app
