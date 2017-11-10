@@ -9,8 +9,8 @@ const params = {
 }
 
 const strategy = new Strategy(params, (payload, done) => {
-    //console.log('payload',payload)
-    const email = [payload.email]
+   console.log('payload',payload)
+    const email = payload.email
     
     Users.findOne({email: email})
     .then(user => {

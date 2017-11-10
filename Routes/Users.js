@@ -29,7 +29,7 @@ user.route('/user')
    *  HTTP/1.1 412 Precondition Failed
   */
 .get((req, res) => {
-    
+    console.log(req)
     const email = req.user.email;
     Users.findOne({email: email})
     .populate('tasks')
@@ -93,9 +93,9 @@ user.route('/user')
  */
 users.route('/users')
   .post((req, res) => {
-      console.log(req.body)
+     // console.log(req)
       if(!req.body.email && !req.body.name && !req.body.password) {
-            return req.status(400).json({err: 'email, password and name are required'})
+            return res.status(400).send({err: 'email, password and name are required'})
       }
       if(!_.isString(req.body.email) && !_.isString(req.body.password) && !_.isString(req.body.name)) {
           return res.status(400).json({err: 'email and password must be strings'})
@@ -108,7 +108,7 @@ users.route('/users')
       Users.create(req.body).then(result => {
           return res.json(result)
       }).catch(err => {
-          return res.status(500).send('there was an error try again')
+          return res.status(500).send(err)
       })
                                      
   });

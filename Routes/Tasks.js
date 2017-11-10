@@ -8,7 +8,8 @@ const taskId = router;
 
 tasks.route('/tasks')
 .all(authenticate())
-.get((req, res) => {    
+.get((req, res) => {  
+  
     Tasks.find()
      .populate('user')
      .then(result => {
@@ -19,25 +20,28 @@ tasks.route('/tasks')
      });
 })
 .post((req, res) => {
-    if (!req.body) {
-        return res.status(400).json({msg: 'supply a task'});
-    } 
+    console.log(req.body)
     if (!_.isString(req.body.title)) {
         return res.status(400).json({msg: 'task must be a string'});
     }
-     
-    User.findOne({ email: req.user.email})
+    const email = req.user.email
+    Users.findOne({ email: email })
     .then(user => {
+        console.log(user)
         Tasks.create({
             title: req.body.title,
             done: req.body.done,
             user: user._id
-    }).then(result => {
-        return res.status(200).send('Task has been saved')
+    }, (err, task) => {
+        if(err) {
+            console.log(err)
+            return res.send(err)
+        }
+        return res.json(task)
     })
     })
     .catch(err => {
-        return res.status(500).send('there was an error')
+        return res.status(500).send(err)
     })
     
    
@@ -62,8 +66,11 @@ taskId.route('/tasks/:name')
 })
   .delete((req, res) => {
       let name = req.params.name
+      let email = req.user.email
+      let log = { name, email: email}
+      console.log(name)
       if (!_.isString(name)) return res.status(400).send('wrong request parameter');
-      Users.findOne({ email: req.user.email })
+      Users.findOne({ email: email })
           .then(result => {
               Tasks.deleteOne({ user: result._id, title: name })
                   .then(task => {
@@ -75,6 +82,8 @@ taskId.route('/tasks/:name')
   })
   .put((req, res) => {
       let name = req.params.name
+      let done = req.body.done
+      console.log(done)
       if (!_.isString(name)) return res.status(400).send('wrong request parameter');
       if (!req.body && !req.body.title && !req.body.done) {
           return res.status(400).json({msg: 'please supply title and done parameter'})
@@ -84,7 +93,8 @@ taskId.route('/tasks/:name')
       }
       Users.findOne({ email: req.user.email })
           .then(result => {
-              Tasks.update({ user: result._id, name: name }, { title: req.body.title, done: req.body.done}, (err, result) => {
+              let id = result._id
+              Tasks.update({ user: id, title: name }, { done: done}, (err, result) => {
                   if(err) {
                       return res.send(err)
                   }
